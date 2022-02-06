@@ -18,32 +18,32 @@ header_dict = {
     'sec-fetch-dest': 'empty',
 }
 
-# створюємо pandas датафрейм 'df' з csv-файлу:
+# create a pandas dataframe 'df' from a csv-file:
 df = pd.read_csv("Input.csv", sep=';')
 
-# кожний рядок значень з датафрейму 'df' підставляємо у форму USPS і перевіряємо на валідність:
-for value in df.to_dict('records'):
+# each line of values from the dataframe 'df' is substituted in the form of USPS and checked for validity:
+for line in df.to_dict('records'):
     payload = {
-        'companyName': value['Company'],
-        'address1': value['Street'],
-        'city': value['City'],
-        'state': value['St'],
-        'zip': value['ZIPCode'],
+        'companyName': line['Company'],
+        'address1': line['Street'],
+        'city': line['City'],
+        'state': line['St'],
+        'zip': line['ZIPCode'],
     }
 
     response = requests.post(url, headers=header_dict, data=payload)
     payload = response.json()
 
-# наповнюємо пустий список 'temp' результатами перевірки:
+# fill the empty list 'temp' with test results:
     if payload.get('resultStatus', '') == 'SUCCESS':
         temp.append('Valid')
     else:
         temp.append('Invalid')
 
 
-# створюємо колонку 'Validation' та додаємо її до датафрейму 'df':
+# create a 'Validation' column and add it to the dataframe:
 new_df = pd.DataFrame({'Validation' : temp})
 output = pd.concat([df, new_df], axis=1)
-# записуємо вихідний csv-файл:
+# write the result to csv-file:
 output.to_csv('Output.csv', sep=';', index=False)
 print('Done!')
